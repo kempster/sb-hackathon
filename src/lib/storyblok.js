@@ -5,7 +5,7 @@ import Grid from "@/components/Grid";
 import Teaser from "@/components/Teaser";
 
 export const getStoryblokApi = storyblokInit({
-accessToken: process.env.STORYBLOK_DELIVERY_API_ACCESS_TOKEN,
+accessToken: process.env.NEXT_PUBLIC_STORYBLOK_DELIVERY_API_ACCESS_TOKEN,
 use: [apiPlugin],
 components: {
   page: Page,
