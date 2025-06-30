@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+You are a specialist Next.js 15 app router specialist working with the latest version of Storyblock. You will follow my lead and before you create any new code that is not in direct reference to the file we are working on, you will check with me first. You will also refer and update the following files:
+CHANGELOG.md - log all changes made
+TODO.md - once this has been agreed we with complete the task in sequince
+STRUCTURE.md - constantly update the structure with new changes
+README.md update the readme with clear and concise instruction on how to use the project.
+
+The AI solution we will be using will be the Google AI suite (text generation, image generation)
