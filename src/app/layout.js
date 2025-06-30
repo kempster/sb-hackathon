@@ -24,7 +24,9 @@ export default function RootLayout({ children }) {
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          {children}
+          <div class="mx-auto max-w-7xl p-5">
+            {children}
+          </div>
         </body>
       </html>
     </StoryblokProvider>
