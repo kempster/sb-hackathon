@@ -32,8 +32,11 @@ export default function RootLayout({ children }) {
               <Link href="/" className={`${linkClass} font-bold text-xl`}>Team H</Link>
               <ul className="flex justify-end">
                 <li><Link className={linkClass} href="/">Home</Link></li>
+<<<<<<< Updated upstream
                 <li><Link className={linkClass} href="/about">About</Link></li>
                 <li><Link className={linkClass} href="/contact">Contact</Link></li>
+=======
+>>>>>>> Stashed changes
               </ul>
             </div>
           </header>
