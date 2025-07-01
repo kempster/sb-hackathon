@@ -32,10 +32,6 @@ export default function RootLayout({ children }) {
               <Link href="/" className={`${linkClass} font-bold text-xl`}>Team H</Link>
               <ul className="flex justify-end">
                 <li><Link className={linkClass} href="/">Home</Link></li>
-                <li><Link className={linkClass} href="/experience-the-e-bike-revolution-ride-into-a-greener-future">Example 1</Link></li>
-                <li><Link className={linkClass} href="/ecopaw-sustainable-fun-for-your-canine-companion">Example 2</Link></li>
-                <li><Link className={linkClass} href="/about">About</Link></li>
-                <li><Link className={linkClass} href="/contact">Contact</Link></li>
               </ul>
             </div>
           </header>

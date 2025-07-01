@@ -12,8 +12,8 @@ export default async function StoriesList() {
   const stories = data.stories.filter((story) => story.full_slug !== 'home');
 
   return (
-    <div className="max-w-5xl mx-auto px-5">
-      <h2 class="font-bold text-4xl mb-5">All Stories</h2>
+    <div className="container">
+      <h1 className="font-bold text-4xl mb-5">All Stories</h1>
       <ul className="list-disc pl-5">
         {stories.map((story) => (
           <li key={story.id}>
