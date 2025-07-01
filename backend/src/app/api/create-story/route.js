@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import StoryblokClient from "storyblok-js-client";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
+import { writeFile } from "fs/promises";
+import path from "path";
+import axios from "axios";
+import FormData from "form-data";
 
 // Initialize the Storyblok client
 const Storyblok = new StoryblokClient({
   oauthToken: process.env.STORYBLOK_OAUTH_TOKEN,
 });
 
-// Initialize the Google Generative AI client for both text and images
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+// Initialize the Google Generative AI client
+const genAI = new GoogleGenAI(process.env.GOOGLE_API_KEY);
 
 // Function to generate an image and upload it to Storyblok
 async function generateAndUploadImage(prompt, spaceId) {
@@ -16,35 +20,67 @@ async function generateAndUploadImage(prompt, spaceId) {
     console.log(`Generating image for prompt: "${prompt}"`);
 
     // Generate image with Imagen
-    const response = await genAI.models.generateImages({
-      model: "imagen-3.0-generate-001", // Specify the model here
+    const imageResponse = await genAI.models.generateImages({
+      model: "imagen-4.0-generate-preview-06-06",
       prompt: prompt,
       config: {
         numberOfImages: 1,
       },
     });
 
-    const generatedImage = response.generatedImages[0];
+    const generatedImage = imageResponse.generatedImages[0];
     if (!generatedImage) {
-      throw new Error("Image generation failed to return an image.");
+      throw new Error("Image generation failed.");
     }
 
     const imageBuffer = Buffer.from(generatedImage.image.imageBytes, "base64");
     const uniqueFilename = `ai-generated-${Date.now()}.png`;
 
-    console.log(`Uploading image "${uniqueFilename}" to Storyblok...`);
+    // Save the image locally for debugging
+    const localPath = path.join(process.cwd(), "public", uniqueFilename);
+    await writeFile(localPath, imageBuffer);
+    console.log(`Image saved locally to: ${localPath}`);
 
-    // Upload image to Storyblok assets
-    const asset = await Storyblok.post(`spaces/${spaceId}/assets`, {
-      filename: uniqueFilename,
-      file: `data:image/png;base64,${imageBuffer.toString("base64")}`,
+    // --- Storyblok Upload 3-Step Process ---
+
+    // 1. Get a signed request from Storyblok
+    console.log("Step 1: Getting signed request from Storyblok...");
+    const signedRequestResponse = await Storyblok.post(
+      `spaces/${spaceId}/assets/`,
+      {
+        filename: uniqueFilename,
+      }
+    );
+    const signedRequest = signedRequestResponse.data;
+
+    // 2. Upload the image to Amazon S3 using the signed request
+    console.log("Step 2: Uploading image to S3...");
+    const form = new FormData();
+    for (const key in signedRequest.fields) {
+      form.append(key, signedRequest.fields[key]);
+    }
+    form.append("file", imageBuffer, uniqueFilename);
+
+    await axios.post(signedRequest.post_url, form, {
+      headers: form.getHeaders(),
     });
 
-    console.log("Image uploaded successfully:", asset.data.filename);
-    return asset.data.filename; // Return the URL of the uploaded image
+    // The asset URL is available after Step 2, but we must finalize.
+    const assetUrl = signedRequest.pretty_url;
+
+    // 3. Finalize the upload with Storyblok
+    console.log("Step 3: Finalizing upload with Storyblok...");
+    await Storyblok.get(
+      `spaces/${spaceId}/assets/${signedRequest.id}/finish_upload`
+    );
+
+    console.log(`Image uploaded and finalized successfully: ${assetUrl}`);
+    return assetUrl; // Return the final asset URL
   } catch (error) {
-    console.error("Error in image generation/upload process:", error);
-    // Return null or a placeholder if an error occurs
+    console.error(
+      "Error in image generation/upload process:",
+      error.response ? error.response.data : error
+    );
     return null;
   }
 }
@@ -66,7 +102,10 @@ const formatStoryblokPayload = (aiContent, imageMap) => {
             component: "text_with_image", // Component name in Storyblok
             text: section.text,
             // Use the uploaded image URL from our map
-            image: imageMap[section.image_prompt] || "",
+            image: {
+              filename: imageMap[section.image_prompt] || "",
+              alt: section.text,
+            },
           };
         // Add other component mappings here as needed
         default:
