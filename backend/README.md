@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Storyblok AI Page Generator
 
-## Getting Started
+This is a Next.js application that serves as a tool plugin for Storyblok. It allows users to generate entire pages, including structured content and images, from a single text prompt using Google's Generative AI.
 
-First, run the development server:
+## Features
+
+- **AI-Powered Content Creation**: Generate a full page structure from a simple prompt (e.g., "a landing page for a new coffee brand").
+- **Structured JSON Output**: The AI is prompted to return a clean, predictable JSON object that maps directly to Storyblok components.
+- **Automatic Image Generation**: Automatically generates relevant images based on the content and uploads them to Storyblok.
+- **One-Click Page Creation**: Users can review the generated content and create the page in Storyblok with a single button click.
+
+## Prerequisites
+
+Before you begin, you will need:
+
+- A Storyblok account and a Space.
+- A Google AI API Key.
+- Node.js and npm installed.
+
+## Setup & Configuration
+
+### 1. Clone & Install Dependencies
+
+```bash
+git clone <your-repo-url>
+cd backend
+npm install
+```
+
+### 2. Environment Variables
+
+Create a `.env.local` file in the root of the `backend` directory and add the following keys:
+
+```
+# Storyblok
+STORYBLOK_OAUTH_TOKEN="YOUR_STORYBLOK_MANAGEMENT_API_OAUTH_TOKEN"
+STORYBLOK_SPACE_ID="YOUR_STORYBLOK_SPACE_ID"
+
+# Google AI
+GOOGLE_API_KEY="YOUR_GOOGLE_AI_API_KEY"
+```
+
+- `STORYBLOK_OAUTH_TOKEN`: You can generate this from your Storyblok account under **Settings > Access Tokens**.
+- `STORYBLOK_SPACE_ID`: Found in your Storyblok space settings.
+- `GOOGLE_API_KEY`: You can get this from [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+### 3. Configure Storyblok Components
+
+For the tool to work correctly, you must create the following components and fields in your Storyblok space.
+
+**Component: `page`**
+
+- `title`: `text`
+- `meta_description`: `text`
+- `hero_headline`: `text`
+- `hero_subheadline`: `text`
+- `body`: `blocks` (Allow `text_block` and `text_with_image` components)
+
+**Component: `text_block`**
+
+- `content`: `textarea`
+
+**Component: `text_with_image`**
+
+- `text`: `textarea`
+- `image`: `asset`
+
+## Running the Application
+
+To start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the tool.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## How to Use
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1.  Enter a descriptive prompt in the text area.
+2.  Click "Generate Content".
+3.  Review the JSON output in the preview section.
+4.  If you are happy with the content, click "Create Page in Storyblok".
+5.  The new page will be created and published in your Storyblok space.
 
-## Learn More
+## Deploying and Registering as a Plugin
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1.  Deploy your Next.js application to a public URL using a service like Vercel or Netlify.
+2.  In your Storyblok space, go to **Settings > Tool Plugins**.
+3.  Click **Add Tool** and enter the name and the public URL of your deployed application. The tool will now be available in your Storyblok sidebar.
