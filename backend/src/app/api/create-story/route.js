@@ -9,9 +9,6 @@ const Storyblok = new StoryblokClient({
 
 // Initialize the Google Generative AI client for both text and images
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const imageModel = genAI.getGenerativeModel({
-  model: "imagen-3.0-generate-001",
-});
 
 // Function to generate an image and upload it to Storyblok
 async function generateAndUploadImage(prompt, spaceId) {
@@ -19,7 +16,8 @@ async function generateAndUploadImage(prompt, spaceId) {
     console.log(`Generating image for prompt: "${prompt}"`);
 
     // Generate image with Imagen
-    const response = await imageModel.generateImages({
+    const response = await genAI.models.generateImages({
+      model: "imagen-3.0-generate-001", // Specify the model here
       prompt: prompt,
       config: {
         numberOfImages: 1,
