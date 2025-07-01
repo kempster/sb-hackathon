@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 // Initialize the Google Generative AI client
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const genAI = new GoogleGenAI(process.env.GOOGLE_API_KEY);
 
 const getSystemPrompt = () => `
   You are a content creation assistant for a CMS called Storyblok.
@@ -47,10 +46,13 @@ export async function POST(request) {
 
     const fullPrompt = `${getSystemPrompt()}\n\nUser Prompt: "${prompt}"`;
 
-    // Generate content with Gemini
-    const result = await model.generateContent(fullPrompt);
-    const response = await result.response;
-    const text = response.text();
+    // Generate content with Gemini using the new SDK
+    const response = await genAI.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: fullPrompt,
+    });
+
+    const text = response.text;
 
     // Attempt to parse the AI-generated text as JSON
     try {
